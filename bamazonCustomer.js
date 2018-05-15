@@ -94,14 +94,35 @@ function start(){
                 ]).then(function(answer) { //show the user chosen products and move onto confirming the order
                     console.log('=================================')
                     console.log(`You chose ID# ${answer.customerIDinput} - ${res[answer.customerIDinput - 1].product_name}`);
-                    console.log(`You ordered ${answer.customerQuantityInput} of them`);
+                    console.log(`You selected ${answer.customerQuantityInput} of them`);
                     console.log('=================================')
 
                     // add a confirm to prompt for user - cycle back to beginning if no. confirm order
+                    // this prompt let's the user confirm or restart their order
+                    inquirer 
+                        .prompt(
+                          {
+                            name: "customerConfirm",
+                            type: "confirm",
+                            message: "Are these the items that you want to purchase?",
+                          }
+                        ).then(function(answer2) {
 
+                            // console.log(answer2.customerConfirm);
+                            // console.log(answer.customerIDinput);
+                            
+                            if(answer2.customerConfirm == true) {
+                                // pass in the item number and purchase quantity
+                                confirmOrder(answer.customerIDinput, answer.customerQuantityInput);
+                            } else {
+                                console.log("\n YOU CHOSE TO CANCEL, PLEASE RESELECT ITEMS FOR PURCHASE");
+                                console.log(' ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^')
 
-                    // pass in the item number and purchase quantity
-                    confirmOrder(answer.customerIDinput, answer.customerQuantityInput);
+                                start();
+                            }
+                        });      
+                        // // pass in the item number and purchase quantity
+                        // confirmOrder(answer.customerIDinput, answer.customerQuantityInput);
                 });
                 
         };        
@@ -126,18 +147,41 @@ function confirmOrder (productIDnumber, purchaseQuantity) {
                 // console.log(JSON.stringify(res, null, 2));
             })
 
+            additionalOrderPrompt();
             // as user if they want new order or nah
 
         } else {
             console.log(`Apologies, your order could not be completed. We only have ${res[productIDnumber - 1].stock_quantity} in stock at the moment.`);
             // prompt user to change order or place a new order
+            additionalOrderPrompt();
         }
     });
 };
 
 
+function additionalOrderPrompt () {
 
-// user validate or reset
+    inquirer
+        .prompt(
+            {
+                name: "additionalOrder",
+                type: "confirm", 
+                message: "World you like to place another order?"
+            }
+        ).then(function (answer) {
+            if(answer.additionalOrder == true) {
+                // pass in the item number and purchase quantity
+                start();
+            } else {
+                console.log("\n Goodbye");
+                connection.end();
+            }
+        });
+};
+
+// set up new function call to place another order or nah. 
+
+
 // update database notification
 // ask user if they want new order or nah
 // prompt user to change or place new order - otherwise end. connection end?

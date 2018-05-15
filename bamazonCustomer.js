@@ -113,6 +113,8 @@ function start(){
                             
                             if(answer2.customerConfirm == true) {
                                 // pass in the item number and purchase quantity
+                                // console.log("\n Our inventory levels have been updated");
+                                // console.log(' ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^')
                                 confirmOrder(answer.customerIDinput, answer.customerQuantityInput);
                             } else {
                                 console.log("\n YOU CHOSE TO CANCEL, PLEASE RESELECT ITEMS FOR PURCHASE");
@@ -121,8 +123,6 @@ function start(){
                                 start();
                             }
                         });      
-                        // // pass in the item number and purchase quantity
-                        // confirmOrder(answer.customerIDinput, answer.customerQuantityInput);
                 });
                 
         };        
@@ -134,12 +134,14 @@ function confirmOrder (productIDnumber, purchaseQuantity) {
         if(err) throw err;
 
         // console.log(res);
-        // user validation
+        // user validation for quantity requested
         if (purchaseQuantity <= res[productIDnumber - 1].stock_quantity) {
+            console.log('=================================')
             console.log('Congrats! Your order is now complete.');
             console.log(`Your total is: $${purchaseQuantity * res[productIDnumber - 1].price}`);
-            // update database if the purchase is successful
+            console.log('=================================')
 
+            // update database if the purchase is successful
             connection.query('UPDATE products SET ? WHERE ?', [ //sql query syntax - arrray double ?'s
                 { stock_quantity: res[productIDnumber - 1].stock_quantity - purchaseQuantity },
                 { item_id: productIDnumber }
@@ -152,36 +154,27 @@ function confirmOrder (productIDnumber, purchaseQuantity) {
 
         } else {
             console.log(`Apologies, your order could not be completed. We only have ${res[productIDnumber - 1].stock_quantity} in stock at the moment.`);
-            // prompt user to change order or place a new order
+            // prompt user to change order or place a new order if the quantity is invalid
             additionalOrderPrompt();
         }
     });
 };
 
-
+// function to ask the user if they want to place another order or exit bamazon
 function additionalOrderPrompt () {
-
     inquirer
         .prompt(
             {
                 name: "additionalOrder",
-                type: "confirm", 
+                type: "confirm",  //yes or no prompt
                 message: "World you like to place another order?"
             }
         ).then(function (answer) {
             if(answer.additionalOrder == true) {
-                // pass in the item number and purchase quantity
                 start();
             } else {
-                console.log("\n Goodbye");
+                console.log(" Goodbye, please come back to purchase from Bamazon again soon!");
                 connection.end();
             }
         });
 };
-
-// set up new function call to place another order or nah. 
-
-
-// update database notification
-// ask user if they want new order or nah
-// prompt user to change or place new order - otherwise end. connection end?

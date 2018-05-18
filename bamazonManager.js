@@ -65,7 +65,7 @@ function start() {
 
 
 function viewProducts () {
-    connection.query('SELECT * FROM Products', function(err, res){
+    connection.query('SELECT * FROM products', function(err, res){
         if(err) throw err;
         
         console.log('\n Product List:')
@@ -103,7 +103,7 @@ function viewProducts () {
 
 
 function viewLowInventory () {
-    connection.query('SELECT * FROM Products WHERE stock_quantity < 6', function(err, res){ //view only products with inventory of 5 or less
+    connection.query('SELECT * FROM products WHERE stock_quantity < 6', function(err, res){ //view only products with inventory of 5 or less
         if(err) throw err;
         
         console.log('\n Low Inventory List:')
@@ -137,7 +137,7 @@ function viewLowInventory () {
 
 
 function addInventory () { //add inventory to any product
-    connection.query('SELECT * FROM Products', function(err, res){
+    connection.query('SELECT * FROM products', function(err, res){
         if(err) throw err;
 
         console.log('\n Product List:')
@@ -160,7 +160,7 @@ function addInventory () { //add inventory to any product
         // console.log("     Product List Generated")
         console.log(" \n ")
 
-        inquirer //start asking the manager what product to add inventory to
+        inquirer //start asking the manager what product update inventory
             .prompt([
                 {
                     name: "inventoryID",
@@ -206,7 +206,7 @@ function addInventory () { //add inventory to any product
                 
                 // console.log(currentInventory);
 
-                connection.query('UPDATE Products SET ? WHERE ?', [
+                connection.query('UPDATE products SET ? WHERE ?', [
                     {
                         stock_quantity: currentInventory + Number(answer.newInventoryAdded)
                     },
@@ -254,8 +254,93 @@ function addInventory () { //add inventory to any product
 
 
 function newProduct () {
-    
-    // connection.end();
+    // var departmentNames = [];
+
+    connection.query('SELECT * FROM products', function(err, res){
+        if(err) throw err;
+
+        // for (var i = 0; i < res.length; i++) {
+        //     if(departmentNames.includes(res[i].department_name)) {
+        //         continue;
+        //     } else {
+        //         departmentNames.push(res[i].department_name);
+        //     }
+        // }
+
+        inquirer //start asking the manager what product to add inventory to
+            .prompt([
+                {
+                    name: "productName",
+                    type: "input", //id of product
+                    message: "What is name of the product you would like add?",
+                    validate: function(productName) {
+                        if(productName) {
+                            return true;
+                        } else {
+                            console.log("\n Please enter a product");
+                        }
+                    }
+                },
+                {
+                    name: "departmentName",
+                    type: "input",
+                    message: "Enter the product department."
+                    // need a confirm for this one or for entire thing
+                },
+                // { YOU CAN USE THIS AND the loop from above to filter only the already existing departments into a choice list
+                //     name: "departmentName",
+                //     type: "list",
+                //     message: "Please select the department for this product.",
+                //     choices: departmentNames
+                // }
+                {
+                    name: "productPrice",
+                    type: "input", 
+                    message: "Enter the product price.",
+                    validate: function(productPrice){
+                        if(isNaN(productPrice) === false && productPrice > 0) {
+                            return true;
+                        }
+                        else {
+                            console.log("\n Please enter a properly formatted price.");
+                        }
+                    }
+                },
+                {
+                    name: "productQuantity",
+                    type: "input", 
+                    message: "Enter the product quantity.",
+                    validate: function(productQuantity) {
+                        if(isNaN(productQuantity) === false && productQuantity < 1000000 && productQuantity > 0) {
+                            return true;
+                        }
+                        else {
+                            console.log("\n Please enter a valid quantity.");
+                        }
+                    }
+                }
+            ]).then(function (answer) {  
+                // remember to use toFixed() for product price
+                connection.query("INSERT INTO products SET ?", 
+                    { //this is adding a new product however it's messing with the primary key, item ID if a row is removed. need to reset the primary key when a new item is added!
+                    // item_id: res.length,
+                    product_name: answer.productName,
+                    department_name: answer.departmentName,
+                    price: answer.productPrice,
+                    stock_quantity: answer.productQuantity
+                    },
+                    function(error, response){
+                        if(error) 
+                        throw error;
+
+                        console.log("\n Your product was added successfully.");
+                        console.log(' ======================================')
+
+                        showProductTable();
+                    }); 
+            });  
+        // connection.end();
+    });    
 }
 
 

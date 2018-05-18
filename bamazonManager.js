@@ -92,14 +92,134 @@ function viewProducts () {
     // connection.end();
 }
 
+
+
+
+
 function viewLowInventory () {
-    connection.end();
+    connection.query('SELECT * FROM Products WHERE stock_quantity < 6', function(err, res){ //view only products with inventory of 5 or less
+        if(err) throw err;
+        
+        console.log('\n Low Inventory List:')
+        console.log(' ==============')
+
+        // use the cli-table npm package to display a real product table
+        var bamazonTable = new Table ({
+        	head: ["Item ID", "Product Name", "Department", "Price", "Quantity"],
+            //row widths
+        	colWidths: [10, 20, 15, 10, 15]
+        });
+
+        // loop over the results (database table) to display all information
+        for (var i = 0; i < res.length; i++){
+			bamazonTable.push([res[i].item_id, res[i].product_name, res[i].department_name, res[i].price, res[i].stock_quantity]);
+		};
+        // necessary table formatting
+        console.log(bamazonTable.toString());
+
+        // console.log("     Product List Generated")
+        console.log(" \n ")
+
+        start();
+    });
+    // connection.end();
 }
 
-function addInventory () {
-    console.log("you are a real G")
-    connection.end();
+
+
+
+
+
+function addInventory () { //add inventory to any product
+    connection.query('SELECT * FROM Products', function(err, res){
+        if(err) throw err;
+
+        console.log('\n Product List:')
+        console.log(' ==============')
+
+        // use the cli-table npm package to display a real product table
+        var bamazonTable = new Table ({
+        	head: ["Item ID", "Product Name", "Department", "Price", "Quantity"],
+            //row widths
+        	colWidths: [10, 20, 15, 10, 15]
+        });
+
+        // loop over the results (database table) to display all information
+        for (var i = 0; i < res.length; i++){
+			bamazonTable.push([res[i].item_id, res[i].product_name, res[i].department_name, res[i].price, res[i].stock_quantity]);
+		};
+        // necessary table formatting
+        console.log(bamazonTable.toString());
+
+        // console.log("     Product List Generated")
+        console.log(" \n ")
+
+        inquirer //start asking the manager what product to add inventory to
+            .prompt([
+                {
+                    name: "inventoryID",
+                    type: "input", //id of product
+                    message: "What is Item ID of the product you would like update?",
+                    validate: function(inventoryID) {
+                        if(isNaN(inventoryID) == false && parseInt(inventoryID) <= res.length && parseInt(inventoryID) > 0) {
+                            return true; //here we check to make sure the input was a number smaller than product list length and greater than 0
+                        } else {
+                            console.log(`\n Please enter a valid product ID number between ${res[0].item_id} and ${res[res.length - 1].item_id}`);
+                            return false;
+                        }
+                    }
+                },
+                {
+                    name: "newInventoryQuantity",
+                    type: "input",
+                    message: "Enter the quantity to add.",
+                    validate: function(newInventoryQuantity) {
+                        if(isNaN(newInventoryQuantity) == false && parseInt(newInventoryQuantity) > 0) {
+                            return true; //here we check to make sure the input was a number greater than 0
+                        } else {
+                            console.log(`\n Please enter a quantity greater than 0`);
+                            return false;
+                        }
+                    }
+                }
+            ]).then(function (answer) {
+                connection.query('UPDATE Products SET ? WHERE ?', [
+                    {
+                        stock_quantity: answer.newInventoryQuantity
+                    },
+                    {
+                        item_id: answer.inventoryID
+                    }
+                ], function(error, response){
+                    if(error) throw error;
+
+                    console.log("it works so far");
+                    console.log(" \n ")   //say how much was added
+
+
+                // connection.query('SELECT * FROM Products', function(err, res){
+                //     if(err) throw err;
+
+                // if(answer.additionalOrder == true) {
+                //     start();
+                // } else {
+                //     console.log(" Goodbye, please come back to purchase from Bamazon again soon!");
+                //     connection.end();
+                // }
+
+                start();
+                });
+
+            });
+
+    });
 }
+
+
+
+
+
+
 
 function newProduct () {
     connection.end();

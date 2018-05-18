@@ -70,8 +70,8 @@ function start(){
                     type: "input",
                     message: "Please enter the ID number of the product you would like to purchase",
                     validate: function(customerIDinput) {
-                        if(isNaN(customerIDinput) == false && parseInt(customerIDinput) <= res.length && parseInt(customerIDinput) > 0) {
-                            return true; //here we check to make sure the input was a number smaller than product list length and greater than 0
+                        if(isNaN(customerIDinput) == false && customerIDinput % 1 == 0 && parseInt(customerIDinput) <= res.length && parseInt(customerIDinput) > 0) {
+                            return true; //here we check to make sure the input was a whole number smaller than product list length and greater than 0
                         } else {
                             console.log(`\n Please enter a valid product ID number between ${res[0].item_id} and ${res[res.length - 1].item_id}`);
                             return false;
@@ -83,7 +83,7 @@ function start(){
                     type: "input",
                     message: "How many would you like to purchase?",    
                     validate: function(customerQuantityInput) {
-                        if(isNaN(customerQuantityInput) == false && parseInt(customerQuantityInput) > 0) {
+                        if(isNaN(customerQuantityInput) == false && customerQuantityInput % 1 == 0 && parseInt(customerQuantityInput) > 0) {
                             return true; //more user validation
                         } else {
                             console.log("\n Please enter a valid quantiy");

@@ -33,7 +33,8 @@ function start() {
                 "View Products for Sale",
                 "View Low Inventory",
                 "Add to Inventory", 
-                "Add New Product"
+                "Add New Product",
+                "Exit"
             ]
         })
         .then(function(answer) {
@@ -52,6 +53,11 @@ function start() {
 
                 case "Add New Product":
                     newProduct();
+                    break;
+                
+                case "Exit":
+                    console.log("  Goodbye!")
+                    connection.end();
                     break;
             }
         })
@@ -161,7 +167,7 @@ function addInventory () { //add inventory to any product
                     type: "input", //id of product
                     message: "What is Item ID of the product you would like update?",
                     validate: function(inventoryID) {
-                        if(isNaN(inventoryID) == false && parseInt(inventoryID) <= res.length && parseInt(inventoryID) > 0) {
+                        if(isNaN(inventoryID) == false && inventoryID % 1 == 0 && parseInt(inventoryID) <= res.length && parseInt(inventoryID) > 0) {
                             return true; //here we check to make sure the input was a number smaller than product list length and greater than 0
                         } else {
                             console.log(`\n Please enter a valid product ID number between ${res[0].item_id} and ${res[res.length - 1].item_id}`);
@@ -170,11 +176,11 @@ function addInventory () { //add inventory to any product
                     }
                 },
                 {
-                    name: "newInventoryQuantity",
+                    name: "newInventoryAdded",
                     type: "input",
                     message: "Enter the quantity to add.",
-                    validate: function(newInventoryQuantity) {
-                        if(isNaN(newInventoryQuantity) == false && parseInt(newInventoryQuantity) > 0) {
+                    validate: function(newInventoryAdded) {
+                        if(isNaN(newInventoryAdded) == false && newInventoryAdded % 1 == 0 && parseInt(newInventoryAdded) > 0) {
                             return true; //here we check to make sure the input was a number greater than 0
                         } else {
                             console.log(`\n Please enter a quantity greater than 0`);
@@ -183,9 +189,26 @@ function addInventory () { //add inventory to any product
                     }
                 }
             ]).then(function (answer) {
+
+                var currentInventory = 0;
+
+                // console.log(answer);
+                // console.log(JSON.stringify(res, null, 2));
+
+                for(var i=0; i<res.length; i++) {
+                    if(res[i].item_id == answer.inventoryID) {
+                        currentInventory = res[i].stock_quantity;
+                        // console.log(res[i].item_id);
+                        // console.log(answer.inventoryID);
+                    }
+                }
+
+                
+                // console.log(currentInventory);
+
                 connection.query('UPDATE Products SET ? WHERE ?', [
                     {
-                        stock_quantity: answer.newInventoryQuantity
+                        stock_quantity: currentInventory + Number(answer.newInventoryAdded)
                     },
                     {
                         item_id: answer.inventoryID
@@ -193,8 +216,18 @@ function addInventory () { //add inventory to any product
                 ], function(error, response){
                     if(error) throw error;
 
-                    console.log("it works so far");
-                    console.log(" \n ")   //say how much was added
+                    // console.log(JSON.stringify(response, null, 2));
+                    // console.log(JSON.stringify(res, null, 2));
+                    // console.log(answer.inventoryID);
+
+                    console.log('\n =====================')
+                    console.log(` You have successfully added ${answer.newInventoryAdded} units to ${res[Number(answer.inventoryID) - 1].product_name}`)
+                    console.log(' =====================')
+
+                    showProductTable();
+
+                    // console.log("it works so far");
+                    //say how much was added
 
 
                 // connection.query('SELECT * FROM Products', function(err, res){
@@ -207,7 +240,6 @@ function addInventory () { //add inventory to any product
                 //     connection.end();
                 // }
 
-                start();
                 });
 
             });
@@ -222,12 +254,44 @@ function addInventory () { //add inventory to any product
 
 
 function newProduct () {
-    connection.end();
+    
+    // connection.end();
 }
 
 
 
-// If a manager selects View Low Inventory, then it should list all items with an inventory count lower than five.
-// If a manager selects Add to Inventory, your app should display a prompt that will let the manager "add more" of any item currently in the store.
-// If a manager selects Add New Product, it should allow the manager to add a completely new product to the store.
 
+
+
+
+
+function showProductTable () {
+    connection.query('SELECT * FROM Products', function(err, res){
+        if(err) throw err;
+
+        console.log('\n Product List:')
+        console.log(' ==============')
+
+        // use the cli-table npm package to display a real product table
+        var bamazonTable = new Table ({
+        	head: ["Item ID", "Product Name", "Department", "Price", "Quantity"],
+            //row widths
+        	colWidths: [10, 20, 15, 10, 15]
+        });
+
+        // loop over the results (database table) to display all information
+        for (var i = 0; i < res.length; i++){
+			bamazonTable.push([res[i].item_id, res[i].product_name, res[i].department_name, res[i].price, res[i].stock_quantity]);
+		};
+        // necessary table formatting
+        console.log(bamazonTable.toString());
+
+
+        console.log("\n Product List Updated!")
+        console.log(' =====================')
+
+        console.log(" \n ")
+
+        start();
+    });    
+}

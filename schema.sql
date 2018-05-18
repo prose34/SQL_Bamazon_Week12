@@ -16,7 +16,7 @@ CREATE TABLE products (
 
 INSERT INTO products (product_name, department_name, price, stock_quantity)
 VALUES ("Math Textbook", "Books", 200, 100),
-    ("Macbook Pro", "Electronics", 2000, 50),
+    ("Macbook Pro", "Electronics", 2000, 4),
     ("Xbox Game", "Electronics", 50, 10000),
     ("Comic Book", "Books", 2.99, 30000),
     ("Tesla Model S", "Vehicles", 75000, 5),

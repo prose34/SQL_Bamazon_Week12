@@ -65,11 +65,11 @@ Created during Week 12 of the SMU Full Stack Developer/Coding Bootcamp. Node.js,
 
 ## Demo Videos
 
-* bamazonCustomer.js (youtube link)
+* bamazonCustomer.js (https://www.youtube.com/watch?v=wWY79eIjCwg)
 
-* bamazonManager.js (youtube link)
+* bamazonManager.js (https://www.youtube.com/watch?v=wWY79eIjCwg)
 
-* bamazonExecutive.js (youtube link)
+* bamazonExecutive.js (Youtube Link - Coming soon!)
 
 ## Technologies used
 - Node.js

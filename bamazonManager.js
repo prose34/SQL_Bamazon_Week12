@@ -351,7 +351,7 @@ function newProduct () {
 
 
 function showProductTable () {
-    connection.query('SELECT * FROM Products', function(err, res){
+    connection.query('SELECT * FROM products', function(err, res){
         if(err) throw err;
 
         console.log('\n Product List:')
